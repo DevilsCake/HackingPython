@@ -3,6 +3,7 @@ import scapy.all as scapy
 import time
 import subprocess
 
+
 # gets the mac giving an IP
 def get_mac(ip):
     arp_req = scapy.ARP(pdst=ip)

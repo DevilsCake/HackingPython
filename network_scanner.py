@@ -3,6 +3,7 @@
 import scapy.all as scapy
 import argparse
 
+
 def scan(ip):
     arp_req = scapy.ARP(pdst=ip)
     broadcast = scapy.Ether(dst = "ff:ff:ff:ff:ff:ff")
@@ -10,6 +11,7 @@ def scan(ip):
     ans = scapy.srp(arp_req_broad,timeout=13, verbose=False)[0]
     clients = get_clients_list(ans)
     return clients
+
 
 def get_clients_list(packets):
     client_list =[]
@@ -19,10 +21,12 @@ def get_clients_list(packets):
 
     return client_list
 
+
 def print_clients(list):
     print("IP\t\t\t""MAC\n................................")
     for client in list:
         print(client["ip"] + "\t" + client["mac"] )
+
 
 #prepare parser
 def prep_parser():
@@ -30,10 +34,12 @@ def prep_parser():
     parser.add_argument("-t","--target",dest="target",help="Target network to scan")
     return parser
 
+
 def get_target(parser):
     options = parser.parse_args() #returns only the OptionParser
     target_net = options.target
     return target_net
+
 
 parser = prep_parser()          #prepares parser
 target_net = get_target(parser) #takes the target network

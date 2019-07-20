@@ -26,8 +26,9 @@ def process_packet(packet):
 
     packet.accept()
 
-# First need to trap the incoming packets to a queue: iptables -I FORDWARD -j queue-num 0
 
+# Execute first the arp spoofer
+# trap the incoming packets to a queue: iptables -I FORDWARD -j queue-num 0
 queue = netfilterqueue.NetfilterQueue()
 queue.bind(0, process_packet)
 queue.run()

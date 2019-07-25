@@ -24,24 +24,17 @@ def process_packet(packet):
     if scapy_packet.haslayer(scapy.Raw) and scapy_packet.haslayer(scapy.TCP):  # IF has raw data...
         if scapy_packet[scapy.TCP].dport == 80:
             print("[+] Request packet")
-            print(scapy_packet.show())
-            print("load: \n" + str(scapy_packet[scapy.Raw].load) + "\n")
 
-            new_load = re.sub("Accept-Encoding:", "LOLOLOLO", str(scapy_packet[scapy.Raw].load))
-            print("NEW LOAD: \n" + new_load)
+            regex = "Accept-Encoding:.*?\\r\\n"
+            new_load = re.sub(regex, "", scapy_packet[scapy.Raw].load.decode("utf-8"))
             mod_packet = set_load(scapy_packet, new_load)
-
-            print("Final packet:")
-            print(mod_packet.show())
-
+            
             packet.set_payload(bytes(mod_packet))
-            #print("New modified packet: ")
-
 
         elif scapy_packet[scapy.TCP].sport == 80:
-            #print("[+] Response packet")
-            #print(scapy_packet.show())
-            pass
+            print("[+] Response packet")
+            print(scapy_packet.show())
+
     packet.accept()
 
 

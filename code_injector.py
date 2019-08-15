@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Use SSLStrip to use for https, SSLStrip works in port 10000"""
 
 import netfilterqueue
 import scapy.all as scapy
